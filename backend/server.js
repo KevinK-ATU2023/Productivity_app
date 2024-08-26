@@ -27,7 +27,24 @@ async function mongoose_connect() {
     await mdb.connect('mongodb+srv://kkarundu8:aBKCgW168jnWz4WJ@cluster0.m2gfk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 }
 
+const AccountSchema = new mdb.Schema({
+    email: String,
+    password: String,
+    tasks: [Task]
+})
 
+const AccountModel = mdb.model('accounts', AccountSchema)
+
+// Task class 
+class Task {
+    constructor( title, time, frequency ) {
+        this.title = title
+        this.time = time
+        this.frequency = frequency
+    }
+}
+
+// express listeners
 
 app.get("/", ( req, res ) => {
     res.send("Hello from server!")
