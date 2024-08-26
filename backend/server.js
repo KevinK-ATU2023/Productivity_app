@@ -31,6 +31,7 @@ async function mongoose_connect() {
 
 // the schema
 const AccountSchema = new mdb.Schema({
+    username: String,
     name: String,
     email: String,
     password: String,
@@ -54,6 +55,7 @@ app.get("/", ( req, res ) => {
 app.post("signup", async ( req, res ) => {
     const first_name = req.body.fname
     const last_name = req.body.lname
+    const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
 
@@ -65,6 +67,7 @@ app.post("signup", async ( req, res ) => {
         const hash_password = await bcrypt.hash(password, 15)
 
         const new_user = new Account ({
+            username: username,
             name: first_name + " " + last_name,
             email: email,
             password: hash_password,
@@ -72,6 +75,8 @@ app.post("signup", async ( req, res ) => {
         })
 
         new_user.save()
+
+        res.json({ success: true, message: "User has been created" })
     }
 })
 
