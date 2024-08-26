@@ -31,14 +31,44 @@ async function mongoose_connect() {
 
 // the schema
 const AccountSchema = new mdb.Schema({
-    username: String,
-    name: String,
-    email: String,
-    password: String,
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    first_name: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    last_name: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+        unique: true
+    },
     tasks: [{
-        title: String,
-        time: Date,
-        frequency: Number
+        title: {
+            type: String,
+            required: true,
+        },
+        time: {
+            type: Date,
+            required: true,
+        },
+        frequency: {
+            type: String,
+            required: true,
+        }
     }]
 })
 
@@ -68,7 +98,8 @@ app.post("signup", async ( req, res ) => {
 
         const new_user = new Account ({
             username: username,
-            name: first_name + " " + last_name,
+            first_name: first_name,
+            last_name: last_name,
             email: email,
             password: hash_password,
             tasks: []
