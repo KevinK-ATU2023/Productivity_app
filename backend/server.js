@@ -26,10 +26,12 @@ mongoose_connect().catch((err) => { console.log(err) });
 // connecting to mongo database
 async function mongoose_connect() {
     await mdb.connect('mongodb+srv://kkarundu8:aBKCgW168jnWz4WJ@cluster0.m2gfk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+    console.log('Database Connected!')
 }
 
 // the schema
 const AccountSchema = new mdb.Schema({
+    name: String,
     email: String,
     password: String,
     tasks: [{
@@ -40,15 +42,40 @@ const AccountSchema = new mdb.Schema({
 })
 
 // the model 
-const AccountModel = mdb.model('accounts', AccountSchema)
+const Account = mdb.model('accounts', AccountSchema)
+
+const bcrypt = require("bcryptjs")
 
 // express listeners
-
 app.get("/", ( req, res ) => {
     res.send("Hello from server!")
 })
 
+app.post("signup", async ( req, res ) => {
+    const first_name = req.body.fname
+    const last_name = req.body.lname
+    const email = req.body.email
+    const password = req.body.pword
+
+    const account_found = await Account.findOne({ email: email })
+    if (account_found) {
+        res.json({ success: false, message: "User already exists" })
+    }
+    else {
+        const hash_password = await bcrypt.hash(password, 15)
+
+        const new_user = new Account ({
+            name: first_name + " " + last_name,
+            email: email,
+            password: hash_password,
+            tasks: []
+        })
+
+        new_user.save()
+    }
+})
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
-    console.log(`Go to http://localhost:${port}\n`)
+    console.log(`Go to http://localhost:${port}`)
 })
