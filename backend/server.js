@@ -1,9 +1,9 @@
-const port = 3000
-
 // basic server 
 const express = require("express")
 const app = express()
+const port = 3000
 
+// body parser
 const body_parser = require("body-parser")
 app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json())
@@ -23,26 +23,24 @@ const mdb = require("mongoose")
 
 mongoose_connect().catch((err) => { console.log(err) });
 
+// connecting to mongo database
 async function mongoose_connect() {
     await mdb.connect('mongodb+srv://kkarundu8:aBKCgW168jnWz4WJ@cluster0.m2gfk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 }
 
+// the schema
 const AccountSchema = new mdb.Schema({
     email: String,
     password: String,
-    tasks: [Task]
+    tasks: [{
+        title: String,
+        time: Date,
+        frequency: Number
+    }]
 })
 
+// the model 
 const AccountModel = mdb.model('accounts', AccountSchema)
-
-// Task class 
-class Task {
-    constructor( title, time, frequency ) {
-        this.title = title
-        this.time = time
-        this.frequency = frequency
-    }
-}
 
 // express listeners
 
