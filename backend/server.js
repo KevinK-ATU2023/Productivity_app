@@ -188,7 +188,32 @@ app.put("/add_task", async ( req, res ) => {
     }
 })
 
+app.put("/remove_task", async ( req, res ) => {
+    const task_title = req.body.title
 
+    if (signed_in_id.length != 0) {
+        const remove_task = await Account.findByIdAndDelete(signed_in_id, {$push: {tasks: {title: task_title, time: task_time, frequency: task_frequency} } })
+
+        if (remove_task) {
+            res.status(200).json({
+                success: true,
+                message: "Task successfully removed"
+            })
+        }
+        else {
+            res.status(400).json({
+                success: false,
+                message: "Something went wrong"
+            })
+        }
+    }
+    else {
+        res.status(400).json({
+            success: false,
+            message: "You are not signed in!"
+        })
+    }
+})
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
