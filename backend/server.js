@@ -1,4 +1,3 @@
-// global variables
 var signed_in_id = ""
 
 // basic server 
@@ -35,12 +34,11 @@ async function mongoose_connect() {
     console.log('Database Connected!')
 }
 
-// the schema
+// account schema
 const AccountSchema = new mdb.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
     },
     first_name: {
         type: String,
@@ -66,19 +64,20 @@ const AccountSchema = new mdb.Schema({
         title: {
             type: String,
             required: true,
+            unique: true
         },
         time: {
-            type: Date,
-            required: true,
+            type: String,
+            required: true
         },
         frequency: {
             type: String,
-            required: true,
+            required: true
         }
     }]
 })
 
-// the model 
+// accoount model 
 const Account = mdb.model('accounts', AccountSchema)
 
 // express listeners
@@ -87,6 +86,7 @@ app.get("/", ( req, res ) => {
     res.send("Hello from server!")
 })
 
+// post request for when a user tries to sign up
 app.post("/signup", async ( req, res ) => {
     const first_name = req.body.fname
     const last_name = req.body.lname
@@ -97,7 +97,7 @@ app.post("/signup", async ( req, res ) => {
 
     const account = await Account.findOne({ email: email })
     if (account) {
-        res.status(400).json({
+        res.status(401).json({
              success: false, 
              message: "User already exists" 
         })
@@ -126,6 +126,7 @@ app.post("/signup", async ( req, res ) => {
     }
 })
 
+// post request for when a user tries to sign in
 app.post("/signin", async ( req, res ) => {
     const email = req.body.email
     const password = req.body.pword
@@ -134,7 +135,7 @@ app.post("/signin", async ( req, res ) => {
     const account = await Account.findOne({ email: email })
 
     if (!account) {
-        res.status(400).json({
+        res.status(401).json({
             success: false,
             message: "Account couldn't be found"
         })
@@ -155,8 +156,39 @@ app.post("/signin", async ( req, res ) => {
             email: account.email
         })
     }
-
 })
+
+// put request for when a user adds a task to their account 
+app.put("/add_task", async ( req, res ) => {
+    const task_title = req.body.title
+    const task_time = req.body.time
+    const task_frequency = req.body.frequency
+
+    if (signed_in_id.length != 0) {
+        const add_task = await Account.findByIdAndUpdate(signed_in_id, {$push: {tasks: {title: task_title, time: task_time, frequency: task_frequency} } })
+
+        if (add_task) {
+            res.status(200).json({
+                success: true,
+                message: "Added task successfully"
+            })
+        }
+        else {
+            res.status(400).json({
+                success: false,
+                message: "Something went wrong"
+            })
+        }
+    }
+    else {
+        res.status(400).json({
+            success: false,
+            message: "You are not signed in!"
+        })
+    }
+})
+
+
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
