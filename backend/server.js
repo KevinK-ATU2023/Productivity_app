@@ -3,6 +3,9 @@ const express = require("express")
 const app = express()
 const port = 3000
 
+// encryption 
+const bcrypt = require('bcryptjs')
+
 // body parser
 const body_parser = require("body-parser")
 app.use(body_parser.urlencoded({ extended: false }))
@@ -75,27 +78,28 @@ const AccountSchema = new mdb.Schema({
 // the model 
 const Account = mdb.model('accounts', AccountSchema)
 
-const bcrypt = require("bcryptjs")
-
 // express listeners
 app.get("/", ( req, res ) => {
     res.send("Hello from server!")
 })
 
-app.post("signup", async ( req, res ) => {
+app.post("/signup", async ( req, res ) => {
     const first_name = req.body.fname
     const last_name = req.body.lname
     const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
+    // res.send(`Name: ${first_name} ${last_name}\nUsername: ${username}\nEmail: ${email}\nPassword: ${password}`)
 
     const account_found = await Account.findOne({ email: email })
     if (account_found) {
-        res.json({ success: false, message: "User already exists" })
+        res.status(400).json({
+             success: false, 
+             message: "User already exists" 
+        })
     }
     else {
-        const hash_password = await bcrypt.hash(password, 15)
-
+        const hash_password = await bcrypt.hash(password, 10)
         const new_user = new Account ({
             username: username,
             first_name: first_name,
@@ -104,12 +108,20 @@ app.post("signup", async ( req, res ) => {
             password: hash_password,
             tasks: []
         })
-
         new_user.save()
 
-        res.json({ success: true, message: "User has been created" })
+        res.status(200).json({ 
+            success: true, 
+            message: "User has been created",
+            first_name: first_name,
+            last_name: last_name,
+            username: username,
+            email: email
+        })
     }
 })
+
+
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
