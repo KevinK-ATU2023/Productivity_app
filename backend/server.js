@@ -1,3 +1,6 @@
+// global variables
+var signed_in_id = ""
+
 // basic server 
 const express = require("express")
 const app = express()
@@ -79,6 +82,7 @@ const AccountSchema = new mdb.Schema({
 const Account = mdb.model('accounts', AccountSchema)
 
 // express listeners
+
 app.get("/", ( req, res ) => {
     res.send("Hello from server!")
 })
@@ -91,8 +95,8 @@ app.post("/signup", async ( req, res ) => {
     const password = req.body.pword
     // res.send(`Name: ${first_name} ${last_name}\nUsername: ${username}\nEmail: ${email}\nPassword: ${password}`)
 
-    const account_found = await Account.findOne({ email: email })
-    if (account_found) {
+    const account = await Account.findOne({ email: email })
+    if (account) {
         res.status(400).json({
              success: false, 
              message: "User already exists" 
@@ -110,6 +114,7 @@ app.post("/signup", async ( req, res ) => {
         })
         new_user.save()
 
+        signed_in_id = account._id
         res.status(200).json({ 
             success: true, 
             message: "User has been created",
@@ -121,7 +126,37 @@ app.post("/signup", async ( req, res ) => {
     }
 })
 
+app.post("/signin", async ( req, res ) => {
+    const email = req.body.email
+    const password = req.body.pword
+    var is_password_valid = false
 
+    const account = await Account.findOne({ email: email })
+
+    if (!account) {
+        res.status(400).json({
+            success: false,
+            message: "Account couldn't be found"
+        })
+        return
+    }
+    else {
+        is_password_valid = await bcrypt.compare(password, account.password)
+    }
+    
+    if (is_password_valid) {
+        signed_in_id = account._id
+        res.status(200).json({
+            success: true,
+            message: "Successfully logged in",
+            fname: account.first_name,
+            lname: account.last_name,
+            username: account.username,
+            email: account.email
+        })
+    }
+
+})
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
