@@ -195,6 +195,12 @@ app.put("/add_task", async ( req, res ) => {
     else {
         var new_guest_task = new Task(task_title, task_time, task_frequency)
         guest_tasks.push(new_guest_task);
+        // console.log(`\nNew Task values:\nTitle: ${new_guest_task.title}\nTime: ${new_guest_task.time}\nFrequency: ${new_guest_task.frequency}\n`)
+
+        console.log(`Current Guest Task List:`)
+        guest_tasks.forEach((element) => {
+            console.log(`Title: ${element.title}, Time: ${element.time}, Frequency: ${element.frequency}`)
+        })
 
         res.status(200).json({
             success: true,
@@ -203,7 +209,7 @@ app.put("/add_task", async ( req, res ) => {
     }
 })
 
-// put request for when a user adds a task to their account 
+// put request for when a user removes a task from their account 
 app.put("/remove_task", async ( req, res ) => {
     const task_title = req.body.title
     let guest_task_found = false
@@ -234,6 +240,68 @@ app.put("/remove_task", async ( req, res ) => {
         })
 
         if (guest_task_found) {
+            console.log(`Current Guest Task List:`)
+            guest_tasks.forEach((element) => {
+                console.log(`Title: ${element.title}, Time: ${element.time}, Frequency: ${element.frequency}`)
+            })
+
+            res.status(200).json({
+                success: true,
+                message: "Task removed successfully from Guest"
+            })
+        } 
+        else {
+            res.status(400).json({
+                success: false,
+                message: "Task Not Found"
+            })
+        }
+        guest_task_found = false
+    }
+})
+
+// put request for when a user wants to edit a task
+app.put("/edit_task", async ( req, res ) => {
+    const task_title = req.body.title
+    const task_time = req.body.time
+    const task_frequency = req.body.frequency
+    
+    let guest_task_found = false
+
+    if (signed_in_id.length != 0) {
+        const edit_task = await Account.findByIdAndUpdate(signed_in_id, {$set: { tasks: {title: task_title, time: task_time, frequency: task_frequency}} })
+
+        if (edit_task) {
+            res.status(200).json({
+                success: true,
+                message: "Task successfully Edited"
+            })
+        }
+        else {
+            res.status(400).json({
+                success: false,
+                message: "Something went wrong"
+            })
+        }
+    }
+    
+    else {
+        guest_tasks.forEach((value) => {
+            if (value.title === task_title) {
+                guest_task_found = true
+                
+                console.log(`\nTask Previous values:\nTitle: ${value.title}\nTime: ${value.time}\nFrequency: ${value.frequency}\n`)
+
+                value.title = task_title
+                value.time = task_time
+                value.frequency = task_frequency
+
+                console.log(`\nTask new values:\nTitle: ${value.title}\nTime: ${value.time}\nFrequency: ${value.frequency}\n`)
+                return
+            }
+        })
+
+        if (guest_task_found) {
             res.status(200).json({
                 success: true,
                 message: "Task removed successfully from Guest"
@@ -250,6 +318,6 @@ app.put("/remove_task", async ( req, res ) => {
 })
 
 app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(`\nListening on port ${port}`)
     console.log(`Go to http://localhost:${port}`)
 })
