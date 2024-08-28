@@ -1,5 +1,17 @@
 var signed_in_id = ""
 
+// guest task array
+var guest_tasks = [];
+
+// Task class
+class Task {
+    constructor( title, time, frequency ) {
+        this.title = title;
+        this.time = time;
+        this.frequency = frequency;
+    }
+}
+
 // basic server 
 const express = require("express")
 const app = express()
@@ -126,11 +138,11 @@ app.post("/signup", async ( req, res ) => {
     }
 })
 
-// post request for when a user tries to sign in
+// post request for when a user tries to sign in 
 app.post("/signin", async ( req, res ) => {
     const email = req.body.email
     const password = req.body.pword
-    var is_password_valid = false
+    let is_password_valid = false
 
     const account = await Account.findOne({ email: email })
 
@@ -170,29 +182,34 @@ app.put("/add_task", async ( req, res ) => {
         if (add_task) {
             res.status(200).json({
                 success: true,
-                message: "Added task successfully"
+                message: "Added task successfully" 
             })
         }
         else {
             res.status(400).json({
                 success: false,
-                message: "Something went wrong"
+                message: "Something went wrong" 
             })
         }
     }
     else {
-        res.status(400).json({
-            success: false,
-            message: "You are not signed in!"
+        var new_guest_task = new Task(task_title, task_time, task_frequency)
+        guest_tasks.push(new_guest_task);
+
+        res.status(200).json({
+            success: true,
+            message: "Added task successfully to Guest"
         })
     }
 })
 
+// put request for when a user adds a task to their account 
 app.put("/remove_task", async ( req, res ) => {
     const task_title = req.body.title
+    let guest_task_found = false
 
     if (signed_in_id.length != 0) {
-        const remove_task = await Account.findByIdAndDelete(signed_in_id, {$push: {tasks: {title: task_title, time: task_time, frequency: task_frequency} } })
+        const remove_task = await Account.findByIdAndUpdate(signed_in_id, {$pull: {tasks: { title: task_title } } })
 
         if (remove_task) {
             res.status(200).json({
@@ -207,11 +224,28 @@ app.put("/remove_task", async ( req, res ) => {
             })
         }
     }
+    
     else {
-        res.status(400).json({
-            success: false,
-            message: "You are not signed in!"
+        guest_tasks.forEach((value) => {
+            if (value.title === task_title) {
+                guest_task_found = true
+                guest_tasks.splice(guest_tasks.indexOf(value), 1)
+            }
         })
+
+        if (guest_task_found) {
+            res.status(200).json({
+                success: true,
+                message: "Task removed successfully from Guest"
+            })
+        } 
+        else {
+            res.status(400).json({
+                success: false,
+                message: "Task Not Found"
+            })
+        }
+        guest_task_found = false
     }
 })
 
