@@ -97,11 +97,22 @@ app.get('/get_account_status', async (req, res) => {
         })
     }
     else {
-        const account = Account.findById(signed_in_id)
+        const account = await Account.findById(signed_in_id)
 
         res.json({
             status: true,
             status_message: `Welcome back, ${account.username}`
+        })
+    }
+})
+
+app.get('/get_tasks', async ( req, res ) => {
+    if (signed_in_id.length != 0) {
+        const account = await Account.findById(signed_in_id)
+
+        res.json({
+            success: true,
+            tasks: account.tasks
         })
     }
 })
