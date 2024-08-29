@@ -51,6 +51,7 @@ const AccountSchema = new mdb.Schema({
     username: {
         type: String,
         required: true,
+        unique: true
     },
     email: {
         type: String,
@@ -88,6 +89,23 @@ app.get("/", ( req, res ) => {
     res.send("Hello from server!")
 })
 
+app.get('/get_account_status', async (req, res) => {
+    if (signed_in_id.length == 0) {
+        res.json({
+            status: false,
+            message: "You are currently not logged in"
+        })
+    }
+    else {
+        const account = Account.findById(signed_in_id)
+
+        res.json({
+            status: true,
+            status_message: `Welcome back, ${account.username}`
+        })
+    }
+})
+
 // post request for when a user tries to sign up
 app.post("/signup", async ( req, res ) => {
     const username = req.body.username
@@ -117,7 +135,8 @@ app.post("/signup", async ( req, res ) => {
             success: true, 
             message: "User has been created",
             username: username,
-            email: email
+            email: email,
+            status_message: `Welcome, ${username}`
         })
     }
 })
@@ -135,7 +154,7 @@ app.post("/signin", async ( req, res ) => {
     if (!account) {
         res.status(401).json({
             success: false,
-            message: "Account couldn't be found"
+            status_message: "Account couldn't be found"
         })
         return
     }
@@ -149,10 +168,9 @@ app.post("/signin", async ( req, res ) => {
         res.status(200).json({
             success: true,
             message: "Successfully logged in",
-            fname: account.first_name,
-            lname: account.last_name,
             username: account.username,
-            email: account.email
+            email: account.email,
+            status_message: `Welcome back, ${account.username}`
         })
     }
 })

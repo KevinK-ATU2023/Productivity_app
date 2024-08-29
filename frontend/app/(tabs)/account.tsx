@@ -14,26 +14,52 @@ import { SetStateAction, useState } from 'react';
 import MyButton from '@/components/MyButton';
 
 export default function TabTwoScreen() {
-  const [first_name, setFirstName] = useState("")
-  const [last_name, setLastName] = useState("")
   const [user_name, setUserName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [account_status, setAccountStatus] = useState("")
 
   const sign_up_form = () => {
-    axios.post('http://localhost:3000/get_account_status')
-    .then(( res ) => {
-      if (!res.data.status) setAccountStatus("Welcome, Guest");
+    let new_account = {
+      username: user_name,
+      email: email,
+      pword: password
+    }
+
+    axios.post('http://localhost:3000/signup', new_account)
+    .then((res) => {
+      setAccountStatus(res.data.status_message)
+    })
+    .catch((e) => {
+      console.log(e)
     })
   }
 
   const sign_in_form = () => {
-    
+    let sign_in_account = {
+      username: user_name,
+      email: email,
+      pword: password
+    }
+
+    axios.post('http://localhost:3000/signin', sign_in_account)
+    .then((res) => {
+      setAccountStatus(res.data.status_message)
+    })
+    .catch((e) => {
+      console.log(e)
+    })
   }
 
   const get_account_status = () => {
-    
+    axios.get('http://localhost:3000/get_account_status')
+    .then(( res ) => {
+      if (!res.data.status) setAccountStatus("Welcome, Guest");
+      else setAccountStatus(res.data.status_message);
+    })
+    .catch((e) => {
+      console.log(e)
+    })
   }
   
   return (
@@ -46,19 +72,19 @@ export default function TabTwoScreen() {
 
       <View className='mt-80'>
         <InputArea 
-          placeholder="Enter Username:"
+          placeholder="Enter Username"
           onChangeText= {(value: SetStateAction<string>) => {
             setUserName(value)
           }}
         />
         <InputArea 
-          placeholder="Enter Email:"
+          placeholder="Enter Email"
           onChangeText= {(value: SetStateAction<string>) => {
             setEmail(value)
           }}
         />
         <InputArea 
-          placeholder="Enter Password:"
+          placeholder="Enter Password"
           onChangeText= {(value: SetStateAction<string>) => {
             setPassword(value)
           }}
