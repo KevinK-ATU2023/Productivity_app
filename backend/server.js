@@ -170,8 +170,26 @@ app.post("/signin", async ( req, res ) => {
     }
 })
 
-// put request for when a user adds a task to their account 
-app.put("/add_task", async ( req, res ) => {
+// put request for when a user tries to sign in 
+app.put("/signout", ( req, res ) => {
+    if (signed_in_id.length != 0) {
+        signed_in_id = ""
+
+        res.status(200).json({
+            success: true,
+            message: "Successfully signed out"
+        })
+    }
+    else {
+        res.status(400).json({
+            success: false,
+            message: "You are not signed in"
+        })
+    }
+} )
+
+// post request for when a user adds a task to their account 
+app.post("/add_task", async ( req, res ) => {
     const task_title = req.body.title
     const task_time = req.body.time
     const task_frequency = req.body.frequency
@@ -209,8 +227,8 @@ app.put("/add_task", async ( req, res ) => {
     }
 })
 
-// put request for when a user removes a task from their account 
-app.put("/remove_task", async ( req, res ) => {
+// post request for when a user removes a task from their account 
+app.post("/remove_task", async ( req, res ) => {
     const task_title = req.body.title
     let guest_task_found = false
 
@@ -260,8 +278,8 @@ app.put("/remove_task", async ( req, res ) => {
     }
 })
 
-// put request for when a user wants to edit a task
-app.put("/edit_task", async ( req, res ) => {
+// post request for when a user wants to edit a task
+app.post("/edit_task", async ( req, res ) => {
     const task_title = req.body.title
     const task_time = req.body.time
     const task_frequency = req.body.frequency
