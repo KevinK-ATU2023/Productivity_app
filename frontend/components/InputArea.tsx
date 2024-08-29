@@ -12,6 +12,7 @@ const InputArea = ( { placeholder = "", secureTextEntry = false, ...props } ) =>
                       secureTextEntry = {secureTextEntry}
                       placeholder={placeholder}
                       placeholderTextColor="grey"
+                      {...props}
                     />
                 </View>
             </View>

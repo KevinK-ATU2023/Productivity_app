@@ -1,13 +1,6 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, View, Text } from 'react-native';
+import { View, Text } from 'react-native';
 
 import axios from 'axios'
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InputArea from '@/components/InputArea';
 import { SetStateAction, useState } from 'react';
@@ -28,7 +21,7 @@ const add_task = () => {
     }
 
     const add_task_form = () => {
-        axios.post('http://localhost:3000/add_task', new_task)
+        axios.post('http://192.168.0.79:3000/add_task', new_task)
         .then((res) => {
             if(res.data.success) {
                 router.replace('/(tabs)/')

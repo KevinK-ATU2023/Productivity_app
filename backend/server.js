@@ -17,6 +17,16 @@ const express = require("express")
 const app = express()
 const port = 3000
 
+// cors middleware
+const cors = require("cors")
+app.use(cors())
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+}); 
+
 // encryption 
 const bcrypt = require('bcryptjs')
 
@@ -24,16 +34,6 @@ const bcrypt = require('bcryptjs')
 const body_parser = require("body-parser")
 app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json())
-
-// cors middleware
-const cors = require("cors")
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-}); 
-app.use(cors())
 
 // mongodb database 
 const mdb = require("mongoose")
@@ -115,6 +115,13 @@ app.get('/get_tasks', async ( req, res ) => {
             tasks: account.tasks
         })
     }
+
+    else {
+        res.json({
+            success: true,
+            tasks: guest_tasks
+        })
+    }
 })
 
 // post request for when a user tries to sign up
@@ -122,7 +129,6 @@ app.post("/signup", async ( req, res ) => {
     const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
-    // res.send(`Name: ${first_name} ${last_name}\nUsername: ${username}\nEmail: ${email}\nPassword: ${password}`)
 
     const account = await Account.findOne({ email: email })
     if (account) {
@@ -141,7 +147,7 @@ app.post("/signup", async ( req, res ) => {
         })
         new_user.save()
 
-        signed_in_id = account._id
+        signed_in_id = new_user._id
         res.status(200).json({ 
             success: true, 
             message: "User has been created",
@@ -157,6 +163,7 @@ app.post("/signin", async ( req, res ) => {
     const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
+    console.log(req.body)
     let is_password_valid = false
     let is_username_valid = false
 

@@ -19,7 +19,7 @@ export default function TabTwoScreen() {
       pword: password
     }
 
-    axios.post('http://localhost:3000/signup', new_account)
+    axios.post('http://192.168.0.79:3000/signup', new_account)
     .then((res) => {
       setAccountStatus(res.data.status_message)
     })
@@ -35,7 +35,7 @@ export default function TabTwoScreen() {
       pword: password
     }
 
-    axios.post('http://localhost:3000/signin', sign_in_account)
+    axios.post('http://192.168.0.79:3000/signin', sign_in_account)
     .then((res) => {
       setAccountStatus(res.data.status_message)
     })
@@ -45,7 +45,7 @@ export default function TabTwoScreen() {
   }
 
   const get_account_status = () => {
-    axios.get('http://localhost:3000/get_account_status')
+    axios.get('http://192.168.0.79:3000/get_account_status')
     .then(( res ) => {
       if (!res.data.status) setAccountStatus("Welcome, Guest");
       else setAccountStatus(res.data.status_message);
@@ -92,7 +92,7 @@ export default function TabTwoScreen() {
 
       <MyButton
         title='Sign In'
-        onPress={sign_up_form}
+        onPress={sign_in_form}
        />
     </SafeAreaView>
   );
