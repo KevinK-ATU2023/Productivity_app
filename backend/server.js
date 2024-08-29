@@ -52,16 +52,6 @@ const AccountSchema = new mdb.Schema({
         type: String,
         required: true,
     },
-    first_name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    last_name: {
-        type: String,
-        required: true,
-        unique: true
-    },
     email: {
         type: String,
         required: true,
@@ -100,8 +90,6 @@ app.get("/", ( req, res ) => {
 
 // post request for when a user tries to sign up
 app.post("/signup", async ( req, res ) => {
-    const first_name = req.body.fname
-    const last_name = req.body.lname
     const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
@@ -118,8 +106,6 @@ app.post("/signup", async ( req, res ) => {
         const hash_password = await bcrypt.hash(password, 10)
         const new_user = new Account ({
             username: username,
-            first_name: first_name,
-            last_name: last_name,
             email: email,
             password: hash_password,
             tasks: []
@@ -130,8 +116,6 @@ app.post("/signup", async ( req, res ) => {
         res.status(200).json({ 
             success: true, 
             message: "User has been created",
-            first_name: first_name,
-            last_name: last_name,
             username: username,
             email: email
         })
@@ -140,9 +124,11 @@ app.post("/signup", async ( req, res ) => {
 
 // post request for when a user tries to sign in 
 app.post("/signin", async ( req, res ) => {
+    const username = req.body.username
     const email = req.body.email
     const password = req.body.pword
     let is_password_valid = false
+    let is_username_valid = false
 
     const account = await Account.findOne({ email: email })
 
@@ -154,10 +140,11 @@ app.post("/signin", async ( req, res ) => {
         return
     }
     else {
+        is_username_valid = account.username === username
         is_password_valid = await bcrypt.compare(password, account.password)
     }
     
-    if (is_password_valid) {
+    if (is_password_valid && is_username_valid) {
         signed_in_id = account._id
         res.status(200).json({
             success: true,
