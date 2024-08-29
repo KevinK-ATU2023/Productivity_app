@@ -1,13 +1,6 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Image, Platform, View, Text } from 'react-native';
 
 import axios from 'axios'
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InputArea from '@/components/InputArea';
 import { SetStateAction, useState } from 'react';
@@ -17,7 +10,7 @@ export default function TabTwoScreen() {
   const [user_name, setUserName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [account_status, setAccountStatus] = useState("")
+  const [account_status, setAccountStatus] = useState("Welcome, Guest")
 
   const sign_up_form = () => {
     let new_account = {
@@ -64,9 +57,9 @@ export default function TabTwoScreen() {
   
   return (
     <SafeAreaView>
-      <View>
-        <Text className='text-neutral-50 justify-center items-center flex flex-row text-5xl top-40 left-40'>
-          Hello
+      <View className='justify-center items-center'>
+        <Text className='text-neutral-50 justify-center items-center flex flex-row text-5xl top-40'>
+          {account_status}
         </Text>
       </View>
 
